@@ -6,7 +6,9 @@ import usersRoutes from './routes/users.js';
 
 const app = express();
 const port = "3000";
-
+app.use(cors({
+    origin: "*"
+}))
 
 app.use(bodyParser.json())
 
