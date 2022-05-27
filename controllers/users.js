@@ -1,3 +1,6 @@
+import {PrismaClient} from "@prisma/client";
+const prisma = new PrismaClient();
+
 let users = [
     {
         "id": 1,
@@ -5,8 +8,7 @@ let users = [
         "username": "Bret",
         "password": "123456",
         "email": "Sincere@april.biz",
-        "phone": "06 00 00 00 00",
-        "website": "hildegard.org"
+        "role": "author"
         },
         {
         "id": 2,
@@ -14,71 +16,91 @@ let users = [
         "username": "Antonette",
         "email": "Shanna@melissa.tv",
         "password": "123456",
-        "phone": "010-692-6593 x09125",
-        "website": "anastasia.net",
+        "role": "author",
      
         }
 ];
 
 // get users
-export const getUser = (req, res) =>{
-    res.send(users);
+export const getUser = async (req, res) =>{
+    try {
+        let users = await prisma.user.findMany({})
+        res.json(users);
+        
+    } catch (error) {
+        
+    }
 }
 
 // create user
-export const createUser = (req, res) =>{
-    const newUser = req.body;
-    users.push(newUser)
-    res.send(users);
+export const createUser = async (req, res, next) =>{
+    try {
+        const newUser = req.body;
+        const users = await prisma.user.create({
+            data:{
+                username: newUser.username,
+                email: newUser.email,
+                password: newUser.password,
+                role:'author'
+            }
+        })
+        res.json(users);
+    } catch (error) {
+        next(error)
+    }
 }
 
 
 // get user by id
-export const getUserById =  (req, res) =>{
-    let {id} = req.params;
-    const user = users.find((user) => user.id == id)
-    res.send(user);    
+export const getUserById = async (req, res, next) =>{
+    try {
+        let {id} = req.params;
+        const user = await prisma.user.findUnique({
+            where:{
+                "id":Number(id)
+            }
+        })
+        res.json(user); 
+    } catch (error) {
+        next(error)
+    }   
 }
 
 // delete user
-export const deleteUser = (req, res) =>{
-    let {id} = req.params;
-    users = users.filter((user) => user.id != id)
-    res.send(users);   
+export const deleteUser = async (req, res, next) =>{
+    try {
+        let {id} = req.params;
+        users = await prisma.user.delete({
+            where:{
+                "id":Number(id)
+            }
+        })
+        res.send(users);  
+    } catch (error) {
+        next(error)
+    } 
 }
 
 
-export const updateUser = (req, res) =>{
+export const updateUser = async (req, res, next) =>{
 
-    let {id} = req.params;
+    try {
+        let {id} = req.params;
+        const {username, password, email} = req.body;
+        let oldUser = await prisma.user.update({
+            where:{
+                "id":Number(id)
+            },
+            data: {
+                username:username,
+                email:email,
+                password:password
 
-    let oldUser = users.find((user) => user.id == id)
-    const {name, username, password, email, phone, website} = req.body;
-
-    if (name) {
-        oldUser.name = name;
+            }
+        })        
+        res.json(oldUser);
+    } catch (error) {
+        next(error)
     }
-
-    if (username) {
-        oldUser.username = username;
-    }
-
-    if (email) {
-        oldUser.email = email;
-    }
-        
-    if (password) {
-        oldUser.password = password;
-    }
-    
-    if (phone) {
-        oldUser.phone = phone;
-    }
-
-    if (website) {
-        oldUser.website = website;
-    }
-
-    res.send(users);
     
 }
