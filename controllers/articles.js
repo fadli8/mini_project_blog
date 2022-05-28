@@ -1,5 +1,7 @@
 import { PrismaClient, Prisma } from '@prisma/client'
-//import { json } from 'express/lib/response';
+
+
+
 
 const prisma = new PrismaClient()
 
@@ -30,9 +32,10 @@ let articles = [
 export const getArticle = async (req, res, next) =>{
     // res.send(articles);
     try {
+       // res.json(req.headers)
         
         const articles = await prisma.post.findMany({
-            include : { comment: true}
+            include : { comment: true, user: true}
         })
         res.json(articles)
         
@@ -73,7 +76,8 @@ export const getArticleById = async (req, res, next) =>{
             id: Number(id)
         },
         include : {
-            comment: true
+            comment: true,
+            author:true
         }
     })
     
@@ -104,7 +108,7 @@ export const updateArticle = async (req, res, next) =>{
 
     let {id} = req.params;
 
-    const {title, image, body, user_id, published} = req.body;
+    const {title, image, body, authorId, published} = req.body;
     let article = await prisma.post.update({
         where:{
             id: Number(id)
@@ -115,33 +119,9 @@ export const updateArticle = async (req, res, next) =>{
             body:body,
             published:published,
             updated_at: "2022-05-27",
-            authorId: Number(1)
+            authorId: authorId
         }
     })
-
-    // if (title) {
-    //     article.title = title;
-    // }
-
-    // if (image) {
-    //     article.image = image;
-    // }
-        
-    // if (body) {
-    //     article.body = body;
-    // }
-    
-    // if (user_id) {
-    //     article.user_id = user_id;
-    // }
-
-    // article.updated_at = Date.now();
-
-    // if (published) {
-    //     article.published = published;
-    // }
-
-    // res.send(articles);
 
     res.json(article)
     

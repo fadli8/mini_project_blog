@@ -1,6 +1,6 @@
 import express from "express";
-// import articlesRoutes from './routes/articles.js';
 import {createArticle, getArticle, deleteArticle, updateArticle, getArticleById} from '../controllers/articles.js'
+import {accessToken} from "../controllers/users.js";
 
 const app = express();
 
@@ -8,15 +8,15 @@ const app = express();
 
 const router = express.Router();
 
-router.get('/', getArticle);
+router.get('/', accessToken, getArticle);
 
-router.post('/', createArticle);
+router.post('/', accessToken, createArticle);
 
-router.get('/:id', getArticleById);
+router.get('/:id', accessToken, getArticleById);
 
-router.delete('/:id', deleteArticle);
+router.delete('/:id', accessToken, deleteArticle);
 
-router.patch('/:id', updateArticle);
+router.patch('/:id', accessToken, updateArticle);
 
 
 export default router;
